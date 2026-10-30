@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salah Time Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#1a6cf0;--r:22px;--side:272px;
+ --bg:#eef3fb;--card:#fff;--tx:#0f1b3d;--mu:#64748b;--line:#dfe7f5;--inp:#f6f9fe;--shadow:0 10px 30px -16px rgba(30,60,120,.35);--red:#e5484d}
+[data-theme=dark]{--bg:#0a0f1f;--card:#131a2f;--tx:#e8ecf8;--mu:#93a1c2;--line:#233052;--inp:#0d1326;--shadow:0 10px 30px -16px #000}
+:root{--soft:color-mix(in srgb,var(--p) 12%,transparent);--soft2:color-mix(in srgb,var(--p) 28%,transparent)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{color-scheme:light}[data-theme=dark]{color-scheme:dark}
+body{margin:0;min-height:100dvh;background:var(--bg);color:var(--tx);font:15px/1.55 Inter,"Noto Sans Bengali",system-ui,sans-serif;transition:background .25s,color .25s}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}button *{pointer-events:none}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#login{min-height:100dvh;display:grid;place-items:center;padding:20px}
+.lg{width:100%;max-width:410px}
+.logo{width:76px;height:76px;margin:0 auto 14px;display:grid;place-items:center;border-radius:24px;background:var(--p);color:#fff;box-shadow:0 18px 36px -14px var(--p)}
+.logo svg.i{width:36px;height:36px}
+.lg h1{text-align:center;margin:0;font-size:26px;font-weight:800}
+.lg .sub{text-align:center;color:var(--mu);margin:4px 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.fld{display:block;margin-bottom:14px}.fld>span{display:block;color:var(--mu);font-size:13px;margin-bottom:6px;font-weight:500}
+input,textarea,select{width:100%;background:var(--inp);color:var(--tx);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;outline:0;transition:.18s}
+textarea{resize:vertical;min-height:76px}
+input:focus,textarea:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 4px var(--soft)}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+select option{background:var(--card)}
+input[type=color]{padding:3px;height:46px;cursor:pointer}
+.chk{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:11px 13px;background:var(--inp);border:1px solid var(--line);border-radius:14px;cursor:pointer}
+.chk input{appearance:none;-webkit-appearance:none;width:44px;height:25px;flex:none;margin:0;padding:0;border:0;border-radius:99px;background:var(--line);position:relative;cursor:pointer;box-shadow:none!important}
+.chk input::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2px 5px #0004}
+.chk input:checked{background:var(--p)}.chk input:checked::after{transform:translateX(19px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--p);color:#fff;border:0;border-radius:16px;padding:12px 20px;font-weight:700;box-shadow:0 12px 24px -12px var(--p);transition:.15s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;pointer-events:none}
+.btn.danger{background:var(--red);box-shadow:0 12px 24px -12px var(--red)}
+.ghost{display:inline-flex;align-items:center;gap:7px;background:var(--soft);color:var(--p);border:1px solid var(--soft2);border-radius:14px;padding:9px 14px;font-size:14px;font-weight:600}
+.fld .ghost{margin-top:8px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.search{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:0 14px;margin-bottom:14px;color:var(--mu)}
+.search:focus-within{border-color:var(--p);box-shadow:0 0 0 4px var(--soft)}
+.search input{border:0;background:transparent;padding:12px 0;box-shadow:none!important}
+
+/* top bar card + drawer */
+.topbar{position:sticky;top:calc(10px + env(safe-area-inset-top,0px));z-index:20;display:flex;align-items:center;gap:10px;padding:10px;margin:calc(10px + env(safe-area-inset-top,0px)) 12px 0;background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow)}
+.topbar .tt{flex:1;min-width:0}
+.topbar b{display:block;font-size:19px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar small{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sq{width:46px;height:46px;display:grid;place-items:center;background:var(--inp);border:1px solid var(--line);border-radius:16px;color:var(--tx);flex:none}
+.sq:active{background:var(--soft)}
+#scrim{position:fixed;inset:0;z-index:40;background:rgba(5,10,25,.5);opacity:0;pointer-events:none;transition:.25s}
+#scrim.on{opacity:1;pointer-events:auto}
+nav{position:fixed;top:0;left:0;bottom:0;z-index:50;width:min(86vw,var(--side));background:var(--card);border-radius:0 28px 28px 0;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;display:flex;flex-direction:column;transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.9,.3,1);box-shadow:0 0 50px -10px #0007;overflow:auto}
+nav.open{transform:none}
+.brand{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:22px;margin-bottom:14px}
+.brand .logo{width:48px;height:48px;border-radius:15px;margin:0}.brand .logo svg.i{width:26px;height:26px}
+.brand b{display:block;font-size:17px;font-weight:800;line-height:1.2}
+.brand small{color:var(--mu);font-size:11.5px;letter-spacing:1.6px;font-weight:600}
+.items{flex:1;display:flex;flex-direction:column;gap:3px}
+.items button{display:flex;align-items:center;gap:14px;padding:13px 16px;background:transparent;border:0;border-radius:16px;font-size:15.5px;font-weight:600;color:var(--mu);text-align:left;position:relative}
+.items button:hover{background:var(--soft)}
+.items button.on{background:var(--soft);color:var(--p);box-shadow:inset 3px 0 0 var(--p)}
+.navfoot{display:flex;gap:8px;padding-top:12px}.navfoot .ghost{flex:1;justify-content:center}
+#view{max-width:900px;margin:0 auto;padding:18px 14px 130px}
+#view.in{animation:rise .3s ease}@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+
+/* hero + stat cards */
+.hero{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;padding:22px;border-radius:30px;color:#fff;margin-bottom:24px;background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 55%,#5ab0ff));box-shadow:0 24px 40px -22px var(--p)}
+.hero::after{content:"";position:absolute;right:-50px;top:-70px;width:190px;height:190px;border-radius:50%;background:#ffffff26}
+.hero .logo{width:68px;height:68px;margin:0;background:#ffffff2e;border:2px solid #ffffff55;box-shadow:none;flex:none;position:relative;z-index:1}
+.hero>div{position:relative;z-index:1}
+.hero small{color:#ffffffcc;letter-spacing:3px;font-weight:700;font-size:11px}
+.hero h3{margin:2px 0 4px;font-size:22px;font-weight:800;line-height:1.2}.hero p{margin:0;opacity:.92;font-size:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{position:relative;overflow:hidden;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:26px;padding:16px;box-shadow:var(--shadow);transition:.15s}
+.stat:active{transform:scale(.97)}
+.stat::after{content:"";position:absolute;right:-26px;top:-26px;width:90px;height:90px;border-radius:50%;background:var(--soft)}
+.stat .si{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:var(--soft);color:var(--p);margin-bottom:14px;position:relative;z-index:1}
+.stat b{display:block;font-size:34px;font-weight:800;line-height:1.1}
+.stat small{display:block;margin-top:6px;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--mu)}
+.stat.ok .si{background:color-mix(in srgb,#16a34a 15%,transparent);color:#16a34a}
+.stat.bad .si{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+
+/* floating dock */
+.dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;justify-content:space-around;padding:8px;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:28px;box-shadow:0 18px 40px -14px #0005}
+.dock button{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;padding:8px 6px;border:0;background:transparent;border-radius:18px;color:var(--mu);font-size:11.5px;font-weight:700}
+.dock button.on{color:var(--p);background:var(--soft)}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:900px){
+ #app{padding-left:var(--side)}nav{transform:none;box-shadow:none;border-right:1px solid var(--line);border-radius:0}
+ #scrim{display:none}.topbar .menu{display:none}.topbar{margin:16px 40px 0}#view{padding:28px 40px 60px}.dock{display:none}}
+
+h2{margin:0;font-size:24px;font-weight:800;display:flex;align-items:center;gap:10px}
+.ph{display:flex;align-items:center;margin-bottom:16px}
+.count{font-size:12.5px;font-weight:700;color:var(--p);background:var(--soft);border-radius:99px;padding:1px 10px}.count:empty{display:none}
+.sec{display:flex;align-items:center;gap:8px;color:var(--p);font-weight:700;margin:26px 0 10px;font-size:14px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.muted,small{color:var(--mu)}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:11px 12px;margin-bottom:9px;box-shadow:var(--shadow)}
+.row .grow{flex:1;min-width:0}
+.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.row .num{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:13px;background:var(--soft);color:var(--p);font-size:13px;font-weight:700}
+.row img.th{width:92px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:var(--inp);flex:none}
+.ib{width:40px;height:40px;display:grid;place-items:center;background:var(--inp);color:var(--tx);border:0;border-radius:13px;flex:none}
+.ib:hover{background:var(--soft);color:var(--p)}.ib.del{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+.empty{text-align:center;color:var(--mu);padding:40px 10px;border:1.5px dashed var(--line);border-radius:var(--r)}.empty p{margin:6px 0 0}
+.sk{height:62px;border-radius:20px;margin-bottom:9px;background:linear-gradient(100deg,var(--line) 30%,var(--card) 50%,var(--line) 70%) 0 0/200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+.modal{position:fixed;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,10,25,.55);backdrop-filter:blur(5px);animation:fade .2s}
+.modal>div{background:var(--card);width:100%;max-width:580px;max-height:92dvh;overflow:auto;border-radius:28px 28px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));animation:up .26s cubic-bezier(.2,.9,.3,1)}
+.modal h2{font-size:20px;margin-bottom:16px}
+@keyframes up{from{transform:translateY(50px);opacity:0}}@keyframes fade{from{opacity:0}}
+@media(min-width:700px){.modal{align-items:center;padding:20px}.modal>div{border-radius:26px;max-height:88dvh}}
+.acts{display:flex;gap:10px;margin-top:8px}.acts .btn{flex:1}
+.cancel{background:transparent;color:var(--tx);border:1.5px solid var(--line);border-radius:16px;padding:12px 20px}
+.modal.cf>div{max-width:380px;text-align:center}
+.cf-ic{width:56px;height:56px;margin:0 auto 12px;display:grid;place-items:center;border-radius:18px;background:var(--soft);color:var(--p)}
+.cf-ic.d{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.cf-msg{margin:0 0 16px;font-size:16px}
+.pv-label{display:flex;align-items:center;gap:6px;color:var(--p);font-size:13px;font-weight:700;margin:6px 0 8px}
+.posterpv{aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--inp);display:grid;place-items:center;color:var(--mu);font-size:13px;border:1px solid var(--line);margin-bottom:14px;text-align:center;padding:8px}
+.posterpv img{width:100%;height:100%;object-fit:cover}
+.notif{background:#f6f6f2;color:#1b1b1b;border-radius:20px;padding:12px 14px;box-shadow:0 12px 26px -12px #0007;margin-bottom:14px}
+.notif .hd{display:flex;align-items:center;gap:8px;font-size:12px;color:#5b6660}
+.notif .ai{width:20px;height:20px;border-radius:7px;background:var(--p);display:grid;place-items:center;color:#fff}.notif .ai svg.i{width:12px;height:12px}
+.notif .t{font-weight:700;margin-top:6px;word-break:break-word}.notif .b{font-size:14px;color:#333;white-space:pre-wrap;word-break:break-word}
+.notif img{display:block;width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:12px;margin-top:8px}.notif .ph{opacity:.4}
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;max-width:calc(100% - 32px);background:var(--tx);color:var(--bg);padding:11px 18px;border-radius:99px;font-weight:600;box-shadow:0 16px 40px -10px #0008;animation:rise .25s}
+#toast.err{background:var(--red);color:#fff}
+.seg{display:flex;gap:6px;background:var(--inp);border:1px solid var(--line);padding:4px;border-radius:16px;margin-bottom:16px}
+.seg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;border-radius:12px;padding:10px 6px;font-weight:600;color:var(--mu);font-size:14px}
+.seg button.on{background:var(--p);color:#fff}
+.sw{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.sw button{width:42px;height:42px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 2px var(--line)}
+.sw button.on{box-shadow:0 0 0 3px var(--tx)}
+.logo{position:relative;overflow:hidden}
+.logo .lgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+#login .logo{width:120px;height:120px;border-radius:50%}
+.brand .logo,.hero .logo{border-radius:50%}
+</style>
+</head>
+<body>
+
+<div id="login">
+ <div class="lg">
+  <div class="logo" data-i="moon"><img class="lgimg" src="logo.png" alt="" onerror="this.remove()"></div>
+  <h1>Salah Time Admin</h1>
+  <p class="sub" data-t="এডমিন প্যানেলে সাইন ইন করুন|Sign in to the admin panel"></p>
+  <div class="card">
+   <label class="fld"><span data-t="ইমেইল|Email"></span><input id="em" type="email" autocomplete="username" placeholder="admin@example.com"></label>
+   <label class="fld"><span data-t="পাসওয়ার্ড|Password"></span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+   <button class="btn" id="loginBtn" style="width:100%"><i data-i="login"></i> <span data-t="লগইন|Login"></span></button>
+  </div>
+  <div style="text-align:center"><button class="ghost" id="lgLook"><i data-i="palette"></i> <span data-t="থিম ও ভাষা|Theme & language"></span></button></div>
+ </div>
+</div>
+
+<div id="app" hidden>
+ <header class="topbar">
+  <button class="sq menu" id="menuBtn"><i data-i="menu"></i></button>
+  <div class="tt"><b id="ttl"></b><small>Salah Time • Admin Control Center</small></div>
+  <button class="sq" id="lookBtn"><i data-i="palette"></i></button>
+  <button class="sq" id="refBtn"><i data-i="refresh"></i></button>
+ </header>
+ <div id="scrim"></div>
+ <nav id="nav">
+  <div class="brand"><span class="logo"><i data-i="moon"></i><img class="lgimg" src="logo.png" alt="" onerror="this.remove()"></span><div><b>SALAH TIME</b><small>ADMIN PANEL</small></div></div>
+  <div class="items" id="items"></div>
+  <div class="navfoot"><button class="ghost" id="lookBtn2"><i data-i="palette"></i> <span data-t="থিম|Theme"></span></button><button class="ghost" id="logoutBtn"><i data-i="logout"></i> <span data-t="লগআউট|Logout"></span></button></div>
+ </nav>
+ <main id="view"></main>
+ <div class="dock" id="dock"></div>
+</div>
+<div id="toast" hidden></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,collection,doc,getDocs,getDoc,setDoc,addDoc,deleteDoc,serverTimestamp,writeBatch} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqOH5D8Mqyu-o6zLrpoVVbbS-46pK4siA",
+  authDomain: "salah-time-fe99b.firebaseapp.com",
+  projectId: "salah-time-fe99b",
+  storageBucket: "salah-time-fe99b.firebasestorage.app",
+  messagingSenderId: "938332923259",
+  appId: "1:938332923259:web:5012f060eb8f62954e89de"
+};
+const ADMIN_UID = "MztAYiBJTFSATatZKbbrOAtwncy1";
+const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app);
+
+// ---------- helpers ----------
+const ICONS = {
+ home:'<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ check:'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+ dots:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+ image:'<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+ help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+ book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+ beads:'<circle cx="12" cy="4.5" r="2"/><circle cx="18.5" cy="8.5" r="2"/><circle cx="18.5" cy="15.5" r="2"/><circle cx="12" cy="19.5" r="2"/><circle cx="5.5" cy="15.5" r="2"/><circle cx="5.5" cy="8.5" r="2"/>',
+ moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+ edit:'<path d="M12 20h9"/><path d="M16.4 3.6a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+ trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
+ camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+ download:'<path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/>',
+ code:'<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+ logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+ login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',
+ eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+ save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+ menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+ palette:'<path d="M12 22a10 10 0 1 1 10-10c0 3-2 4-4 4h-2a2 2 0 0 0-1.5 3.3c.6.8.1 2.7-2.5 2.7Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="12" cy="7" r="1"/><circle cx="16.5" cy="10" r="1"/>',
+ refresh:'<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M3 21v-5h5"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ auto:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/>'
+};
+const ic = n => `<svg class="i" viewBox="0 0 24 24">${ICONS[n] || ""}</svg>`;
+const $ = s => document.querySelector(s);
+const view = $("#view");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls = (k, v) => { try { return v === undefined ? (localStorage.getItem(k) || "") : localStorage.setItem(k, v); } catch { return ""; } };
+const getPath = (o, p) => p.split(".").reduce((a, k) => a?.[k], o);
+const setPath = (o, p, v) => { const ks = p.split("."); let c = o; ks.slice(0, -1).forEach(k => c = c[k] ??= {}); c[ks.at(-1)] = v; };
+const SKEL = '<div class="sk"></div>'.repeat(4);
+
+// ---------- language ----------
+let lang = ls("lang") || "bn";
+const tl = s => { const p = String(s).split("|"); return (lang === "en" && p[1]) || p[0]; };
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i]").forEach(e => { if (e.tagName !== "svg") e.insertAdjacentHTML("afterbegin", ic(e.dataset.i)), e.removeAttribute("data-i"); });
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = tl(e.dataset.t));
+}
+applyStatic();
+
+// ---------- theme ----------
+const PRESETS = ["#1a6cf0", "#e5484d", "#16a34a", "#7c3aed", "#f59e0b", "#0891b2", "#ec4899"];
+let mode = ls("mode") || "light", accent = ls("accent") || PRESETS[0];
+const mq = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme() {
+  const dark = mode === "dark" || (mode === "auto" && mq.matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  document.documentElement.style.setProperty("--p", accent);
+}
+mq.addEventListener?.("change", applyTheme); applyTheme();
+
+function openLook() {
+  const m = document.createElement("div"); m.className = "modal";
+  const draw = () => {
+    m.innerHTML = `<div><h2>${ic("palette")} ${tl("থিম ও ভাষা|Theme & language")}</h2>
+     <div class="pv-label">${tl("মোড|Mode")}</div>
+     <div class="seg">${[["light","sun","লাইট|Light"],["dark","moon","ডার্ক|Dark"],["auto","auto","অটো|Auto"]].map(([k,i,l]) => `<button data-mode="${k}" class="${mode===k?"on":""}">${ic(i)} ${tl(l)}</button>`).join("")}</div>
+     <div class="pv-label">${tl("ভাষা|Language")}</div>
+     <div class="seg"><button data-lang="bn" class="${lang==="bn"?"on":""}">বাংলা</button><button data-lang="en" class="${lang==="en"?"on":""}">English</button></div>
+     <div class="pv-label">${tl("মূল রং|Main color")}</div>
+     <div class="sw">${PRESETS.map(c => `<button data-acc="${c}" class="${c===accent?"on":""}" style="background:${c}"></button>`).join("")}</div>
+     <label class="fld"><span>${tl("কাস্টম রং|Custom color")}</span><input type="color" id="cc" value="${accent}"></label>
+     <div class="acts"><button class="btn" data-x>${tl("ঠিক আছে|Done")}</button></div></div>`;
+  };
+  draw(); document.body.appendChild(m);
+  m.addEventListener("click", e => {
+    const d = e.target.dataset;
+    if (e.target === m || "x" in d) return m.remove();
+    if (d.mode) { mode = d.mode; ls("mode", mode); applyTheme(); draw(); }
+    else if (d.acc) { accent = d.acc; ls("accent", accent); applyTheme(); draw(); }
+    else if (d.lang) { lang = d.lang; ls("lang", lang); applyStatic(); buildNav(); draw(); if (!$("#app").hidden) show(ls("tab") || "home"); }
+  });
+  m.addEventListener("input", e => { if (e.target.id === "cc") { accent = e.target.value; ls("accent", accent); applyTheme(); } });
+}
+
+function toast(msg, err) {
+  const t = $("#toast"); t.textContent = msg; t.className = err ? "err" : ""; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200);
+}
+function askConfirm(msg, okLabel, danger = false) {
+  okLabel = okLabel || tl("হ্যাঁ, চালিয়ে যান|Yes, continue");
+  return new Promise(res => {
+    const m = document.createElement("div"); m.className = "modal cf";
+    m.innerHTML = `<div><div class="cf-ic ${danger ? "d" : ""}">${ic(danger ? "trash" : "help")}</div><p class="cf-msg">${esc(msg)}</p><div class="acts"><button class="btn ${danger ? "danger" : ""}" data-ok>${okLabel}</button><button class="cancel" data-x>${tl("বাতিল|Cancel")}</button></div></div>`;
+    document.body.appendChild(m);
+    const close = v => { m.remove(); res(v); };
+    m.addEventListener("click", e => {
+      if (e.target === m || "x" in e.target.dataset) close(false);
+      else if ("ok" in e.target.dataset) close(true);
+    });
+  });
+}
+
+// ---------- nav ----------
+const NAV = [["home","home","হোম|Home"],["notify","bell","নোটিশ|Notices"],["posters","image","পোস্টার|Posters"],["quiz","help","কুইজ|Quiz"],["duas","book","দোয়া|Duas"],["articles","book","ইসলাম গাইড|Islam Guide"],["tasbih","beads","তাসবিহ|Tasbih"],["azans","bell","আজান|Azan"],["ramadan","moon","রমাদান|Ramadan"],["settings","sliders","সেটিংস|Settings"]];
+const TABS = NAV.map(n => n[0]);
+const DOCK = [["home","home","হোম|Home"],["notify","bell","নোটিশ|Notices"],["quiz","help","কুইজ|Quiz"],["posters","image","পোস্টার|Posters"],["more","dots","আরও|More"]];
+function buildNav() {
+  const cur = ls("tab");
+  $("#items").innerHTML = NAV.map(([k, i, l]) => `<button data-tab="${k}" class="${k === cur ? "on" : ""}">${ic(i)} ${tl(l)}</button>`).join("");
+  $("#dock").innerHTML = DOCK.map(([k, i, l]) => `<button data-d="${k}" class="${k === cur ? "on" : ""}">${ic(i)} ${tl(l)}</button>`).join("");
+  const n = NAV.find(x => x[0] === cur); if (n) $("#ttl").textContent = tl(n[2]);
+}
+const openNav = o => { $("#nav").classList.toggle("open", o); $("#scrim").classList.toggle("on", o); };
+$("#menuBtn").onclick = () => openNav(true);
+$("#scrim").onclick = () => openNav(false);
+$("#items").onclick = e => { const t = e.target.dataset.tab; if (t) { openNav(false); show(t); } };
+$("#dock").onclick = e => { const k = e.target.dataset.d; if (k === "more") openNav(true); else if (k) show(k); };
+["#lookBtn", "#lookBtn2", "#lgLook"].forEach(s => $(s).onclick = openLook);
+$("#refBtn").onclick = () => show(ls("tab") || "home");
+$("#logoutBtn").onclick = () => signOut(auth);
+
+// ---------- auth ----------
+const doLogin = async () => {
+  try { await signInWithEmailAndPassword(auth, $("#em").value.trim(), $("#pw").value); }
+  catch (e) { toast(tl("লগইন ব্যর্থ|Login failed") + ": " + e.code, true); }
+};
+$("#loginBtn").onclick = doLogin;
+$("#pw").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+onAuthStateChanged(auth, u => {
+  if (u && u.uid === ADMIN_UID) {
+    $("#login").hidden = true; $("#app").hidden = false;
+    const t = ls("tab"); show(TABS.includes(t) ? t : "home");
+  } else {
+    if (u) { toast(tl("এই অ্যাকাউন্ট এডমিন নয়|This account is not an admin"), true); signOut(auth); }
+    $("#login").hidden = false; $("#app").hidden = true;
+  }
+});
+
+// ---------- fields ----------
+function fieldHTML([name, label, type, opts], val) {
+  label = tl(label);
+  if (type === "bool") return `<label class="chk"><input type="checkbox" data-n="${name}" ${val ? "checked" : ""}> <span>${label}</span></label>`;
+  let inner;
+  if (type === "textarea") inner = `<textarea data-n="${name}" rows="${Number(opts) || 3}">${esc(val)}</textarea>`;
+  else if (type === "select") inner = `<select data-n="${name}">${opts.map(o => `<option ${String(o) === String(val) ? "selected" : ""}>${o}</option>`).join("")}</select>`;
+  else if (type === "image") inner = `<input data-n="${name}" value="${esc(val)}" placeholder="https://..."><button type="button" class="ghost" data-up="${name}">${ic("camera")} ${tl("ছবি আপলোড (ImgBB)|Upload image (ImgBB)")}</button>`;
+  else inner = `<input data-n="${name}" type="${type === "number" ? "number" : type === "date" ? "date" : "text"}" value="${esc(val)}">`;
+  return `<div class="fld"><span>${label}</span>${inner}</div>`;
+}
+function readForm(el, fields) {
+  const o = {};
+  for (const [name,, type] of fields) {
+    const i = el.querySelector(`[data-n="${name}"]`); if (!i) continue;
+    const v = type === "bool" ? i.checked : type === "number" ? (i.value === "" ? null : Number(i.value)) : i.value.trim();
+    setPath(o, name, v);
+  }
+  return o;
+}
+async function uploadImage(file) {
+  const key = ls("imgbbKey");
+  if (!key) throw new Error(tl("সেটিংসে ImgBB key দিন|Add the ImgBB key in Settings"));
+  const fd = new FormData(); fd.append("image", file);
+  const r = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(key), {method: "POST", body: fd});
+  const d = await r.json();
+  if (!d.success) throw new Error(tl("আপলোড ব্যর্থ|Upload failed"));
+  return d.data.url;
+}
+function bindUploads(el) {
+  el.addEventListener("click", e => {
+    const n = e.target.dataset?.up; if (!n) return;
+    const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
+    inp.onchange = async () => {
+      try { toast(tl("আপলোড হচ্ছে…|Uploading…")); const f = el.querySelector(`[data-n="${n}"]`); f.value = await uploadImage(inp.files[0]); f.dispatchEvent(new Event("input", {bubbles: true})); toast(tl("আপলোড সম্পন্ন|Upload complete")); }
+      catch (err) { toast(err.message, true); }
+    };
+    inp.click();
+  });
+}
+const imgTag = (u, cls = "") => `<img ${cls ? `class="${cls}" ` : ""}src="${esc(u)}" alt="" onerror="this.outerHTML='<span>${tl("ছবি লোড হয়নি — লিংক চেক করুন|Image failed to load — check the link")}</span>'">`;
+const PV_HTML = () => `<div class="pv-label">${ic("eye")} ${tl("প্রিভিউ (১৬:৯)|Preview (16:9)")}</div><div class="posterpv" id="ppv"></div>`;
+function bindPoster(m) {
+  const inp = m.querySelector('[data-n="imageUrl"]'), box = m.querySelector("#ppv");
+  const upd = () => { const u = inp.value.trim(); box.innerHTML = u ? imgTag(u) : `<span>${tl("ছবির লিংক দিলে এখানে প্রিভিউ দেখাবে|The preview appears once you add an image link")}</span>`; };
+  inp.addEventListener("input", upd); upd();
+}
+function bindNotifPreview(form, box) {
+  const q = n => form.querySelector(`[data-n="${n}"]`);
+  const upd = () => {
+    const t = q("title").value.trim(), b = q("body").value.trim(), u = q("imageUrl").value.trim();
+    box.innerHTML = `<div class="notif"><div class="hd"><span class="ai">${ic("moon")}</span><span>Salah Time • ${tl("এখন|now")}</span></div>
+      <div class="t ${t ? "" : "ph"}">${esc(t || tl("শিরোনাম এখানে দেখাবে|Title shows here"))}</div>
+      <div class="b ${b ? "" : "ph"}">${esc(b || tl("বার্তা এখানে দেখাবে|Message shows here"))}</div>${u ? imgTag(u) : ""}</div>`;
+  };
+  form.addEventListener("input", upd); upd();
+}
+
+// ---------- collections ----------
+const COLS = {
+ posters: {title: "পোস্টার (১৬:৯)|Posters (16:9)", sort: "order",
+  fields: [["imageUrl","ছবির লিংক|Image link","image"],["link","ক্লিক লিংক (ঐচ্ছিক)|Click link (optional)","text"],["order","ক্রম|Order","number"],["active","চালু|Active","bool"]],
+  thumb: i => i.imageUrl, label: i => i.link || tl("পোস্টার|Poster") + " " + (i.order ?? ""), sub: i => `${tl("ক্রম|Order")} ${i.order ?? 0} • ${i.active ? tl("চালু|Active") : tl("বন্ধ|Off")}`},
+ quiz: {title: "কুইজ প্রশ্ন|Quiz questions",
+  fields: [["question","প্রশ্ন|Question","textarea"],["o1","অপশন ১|Option 1","text"],["o2","অপশন ২|Option 2","text"],["o3","অপশন ৩|Option 3","text"],["o4","অপশন ৪|Option 4","text"],["answer","সঠিক উত্তর (১-৪)|Correct answer (1-4)","select",[1,2,3,4]],["explanation","ব্যাখ্যা (ঐচ্ছিক)|Explanation (optional)","textarea"],["category","ক্যাটাগরি|Category","text"],["active","চালু|Active","bool"]],
+  label: i => i.question, sub: i => `${i.category || ""} • ${tl("উত্তর|Answer")} ${i.answer}`},
+ duas: {title: "দোয়া|Duas", sort: "order",
+  fields: [["title","শিরোনাম|Title","text"],["category","ক্যাটাগরি|Category","text"],["arabic","আরবি|Arabic","textarea"],["bangla","বাংলা অর্থ|Bangla meaning","textarea"],["order","ক্রম|Order","number"],["featured","আজকের দোয়া হিসেবে দেখান (ঐচ্ছিক)|Show as today's dua (optional)","bool"]],
+  label: i => i.title, sub: i => i.category || ""},
+ articles: {title: "ইসলাম গাইড (ইবাদত)|Islam Guide (Ibadat)", sort: "order",
+  fields: [["section","সেকশন|Section","select",["ibadat"]],["slug","স্লাগ (ঐচ্ছিক) — রেডিমেড গাইড বদলাতে একই স্লাগ দিন: salat, wudu, ghusl, tayammum, jumuah, eid, janazah, sawm, zakat, hajj, umrah|Slug (optional) — reuse a slug to replace a built-in guide: salat, wudu, ghusl, tayammum, jumuah, eid, janazah, sawm, zakat, hajj, umrah","text"],["title","শিরোনাম (বাংলা)|Title (Bangla)","text"],["titleEn","শিরোনাম (English, ঐচ্ছিক)|Title (English, optional)","text"],["body","বিষয়বস্তু (## হেডিং, • বুলেট, ar: আরবি লাইন)|Content (## heading, • bullet, ar: Arabic line)","textarea",14],["bodyEn","English content (ঐচ্ছিক)|English content (optional)","textarea",8],["order","ক্রম|Order","number"],["active","চালু|Active","bool"]],
+  label: i => i.title, sub: i => `${i.section || ""} • ${tl("ক্রম|Order")} ${i.order ?? "-"}${i.slug ? " • " + i.slug : ""}${i.active === false ? " • " + tl("বন্ধ|Off") : ""}`},
+ tasbih: {title: "তাসবিহ|Tasbih", sort: "order",
+  fields: [["name","নাম|Name","text"],["arabic","আরবি|Arabic","text"],["meaning","অর্থ (ঐচ্ছিক)|Meaning (optional)","text"],["target","লক্ষ্য সংখ্যা|Target count","number"],["order","ক্রম|Order","number"]],
+  label: i => i.name, sub: i => `${tl("লক্ষ্য|Target")} ${i.target ?? "-"}`},
+ azans: {title: "আজান (ইউজার অ্যাপে সিলেক্ট করবে)|Azan (user picks in app)",
+  fields: [["name","আজানের নাম|Azan name","text"],["url","অডিও লিংক (সরাসরি .mp3 URL)|Audio link (direct .mp3 URL)","text"],["active","চালু|Active","bool"]],
+  label: i => i.name, sub: i => `${i.active === false ? tl("বন্ধ|Off") : tl("চালু|Active")} • ${(i.url || "").slice(0, 40)}`},
+ ramadan_days: {title: "রমাদানের দিনভিত্তিক দোয়া/বার্তা|Ramadan daily dua/message", sort: "day", idField: "day",
+  fields: [["day","দিন নম্বর (১-৩০)|Day number (1-30)","number"],["dua","দোয়া|Dua","textarea"],["note","বার্তা|Message","textarea"]],
+  label: i => tl("দিন|Day") + " " + i.day, sub: i => (i.dua || i.note || "").slice(0, 50)},
+};
+
+// ⚠️ আগের QUIZ_SEED অ্যারেটা (রেডিমেড প্রশ্নের লম্বা লিস্ট) এখানে [ ] এর ভেতরে পেস্ট করো — তাহলে "রেডিমেড প্রশ্ন" বাটন ফিরে আসবে।
+const QUIZ_SEED = [];
+
+async function seedQuiz(done) {
+  if (!await askConfirm(QUIZ_SEED.length + tl("টি প্রশ্ন যোগ হবে (ডুপ্লিকেট হবে না)। চালিয়ে যাবেন?| questions will be added (no duplicates). Continue?"))) return;
+  try {
+    const b = writeBatch(db);
+    QUIZ_SEED.forEach((r, i) => b.set(doc(db, "quiz", "seed_" + String(i + 1).padStart(3, "0")),
+      {question: r[0], o1: r[1], o2: r[2], o3: r[3], o4: r[4], answer: r[5], category: r[6], active: true}));
+    await b.commit(); toast(tl("প্রশ্ন যোগ হয়েছে ✅|Questions added ✅")); done();
+  } catch (e) { toast(e.message, true); }
+}
+function importQuiz(done) {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div><h2>${tl("JSON ইমপোর্ট|JSON import")}</h2><p class="muted" style="margin-top:-8px;word-break:break-word">[{"question":"...","o1":"..","o2":"..","o3":"..","o4":"..","answer":1,"category":".."}]</p><textarea id="impTxt" rows="10"></textarea><div class="acts" style="margin-top:14px"><button class="btn" data-go>${ic("download")} ${tl("ইমপোর্ট|Import")}</button><button class="cancel" data-x>${tl("বাতিল|Cancel")}</button></div></div>`;
+  document.body.appendChild(m);
+  m.addEventListener("click", async e => {
+    if (e.target === m || "x" in e.target.dataset) m.remove();
+    if ("go" in e.target.dataset) {
+      try {
+        const arr = JSON.parse(m.querySelector("#impTxt").value);
+        if (!Array.isArray(arr) || !arr.length || arr.length > 450) throw new Error(tl("১-৪৫০টি প্রশ্নের অ্যারে দিন|Provide an array of 1–450 questions"));
+        const b = writeBatch(db);
+        arr.forEach((r, i) => {
+          const a = Number(r.answer);
+          if (!r.question || !r.o1 || !r.o2 || !r.o3 || !r.o4 || !(a >= 1 && a <= 4)) throw new Error(tl("প্রশ্ন|Question") + " " + (i + 1) + ": " + tl("ভুল আছে|invalid"));
+          b.set(doc(collection(db, "quiz")), {question: r.question, o1: r.o1, o2: r.o2, o3: r.o3, o4: r.o4, answer: a, category: r.category || "", active: true});
+        });
+        await b.commit(); m.remove(); toast(arr.length + " ✅"); done();
+      } catch (err) { toast(err.message, true); }
+    }
+  });
+}
+
+async function colView(key, el) {
+  const c = COLS[key];
+  const extra = key === "quiz" ? `${QUIZ_SEED.length ? `<button class="ghost" data-seed>${ic("download")} ${QUIZ_SEED.length} ${tl("রেডিমেড প্রশ্ন|ready-made questions")}</button>` : ""}<button class="ghost" data-import>${ic("code")} ${tl("JSON ইমপোর্ট|JSON import")}</button>` : "";
+  el.innerHTML = `<div class="ph"><h2>${tl(c.title)}<span class="count" data-count></span></h2></div>
+    <div class="toolbar"><button class="btn" data-add>${ic("plus")} ${tl("নতুন|New")}</button>${extra}</div>
+    <label class="search">${ic("search")}<input data-q placeholder="${tl("খুঁজুন…|Search…")}"></label>
+    <div data-list>${SKEL}</div>`;
+  const snap = await getDocs(collection(db, key));
+  const items = snap.docs.map(d => ({id: d.id, ...d.data()}));
+  if (c.sort) items.sort((a, b) => (a[c.sort] ?? 0) - (b[c.sort] ?? 0));
+  el.querySelector("[data-count]").textContent = items.length;
+  const box = el.querySelector("[data-list]");
+  const renderList = (q = "") => {
+    const s = q.trim().toLowerCase();
+    const list = s ? items.filter(i => (String(c.label(i) ?? "") + " " + String(c.sub(i) ?? "")).toLowerCase().includes(s)) : items;
+    box.innerHTML = list.length
+      ? list.map((i, n) => `<div class="row">${c.thumb && c.thumb(i) ? imgTag(c.thumb(i), "th") : `<span class="num">${n + 1}</span>`}<div class="grow"><b>${esc(c.label(i))}</b><small>${esc(c.sub(i))}</small></div><button class="ib" data-edit="${i.id}">${ic("edit")}</button><button class="ib del" data-del="${i.id}">${ic("trash")}</button></div>`).join("")
+      : `<div class="empty">${ic("search")}<p>${s ? tl("কিছু পাওয়া যায়নি|Nothing found") : tl("এখনো কিছু নেই|Nothing here yet")}</p></div>`;
+  };
+  renderList();
+  el.oninput = e => { if ("q" in e.target.dataset) renderList(e.target.value); };
+  el.onclick = async e => {
+    const t = e.target;
+    if ("seed" in t.dataset) return seedQuiz(() => colView(key, el));
+    if ("import" in t.dataset) return importQuiz(() => colView(key, el));
+    if ("add" in t.dataset) openForm(key, null, () => colView(key, el));
+    else if (t.dataset.edit) openForm(key, items.find(i => i.id === t.dataset.edit), () => colView(key, el));
+    else if (t.dataset.del) {
+      if (!await askConfirm(tl("এটি মুছে ফেলবেন?|Delete this?"), tl("মুছে ফেলুন|Delete"), true)) return;
+      try { await deleteDoc(doc(db, key, t.dataset.del)); toast(tl("মুছে ফেলা হয়েছে|Deleted")); colView(key, el); }
+      catch (err) { toast(err.message, true); }
+    }
+  };
+}
+function openForm(key, item, done) {
+  const c = COLS[key];
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div><h2>${item ? tl("এডিট|Edit") : tl("নতুন|New")} — ${tl(c.title)}</h2>${c.fields.map(f => fieldHTML(f, item?.[f[0]] ?? (f[2] === "bool" ? f[0] !== "featured" : ""))).join("")}${key === "posters" ? PV_HTML() : ""}<div class="acts"><button class="btn" data-save>${ic("save")} ${tl("সেভ|Save")}</button><button class="cancel" data-x>${tl("বাতিল|Cancel")}</button></div></div>`;
+  document.body.appendChild(m); bindUploads(m); if (key === "posters") bindPoster(m);
+  m.addEventListener("click", async e => {
+    if (e.target === m || "x" in e.target.dataset) m.remove();
+    if ("save" in e.target.dataset) {
+      const btn = e.target;
+      try {
+        const data = readForm(m, c.fields);
+        if (key === "quiz") data.answer = Number(data.answer);
+        const id = c.idField ? String(data[c.idField] ?? "") : item?.id;
+        if (c.idField && !id) return toast(tl("দিন নম্বর দিন|Enter the day number"), true);
+        btn.disabled = true;
+        if (id) await setDoc(doc(db, key, id), data); else await addDoc(collection(db, key), data);
+        m.remove(); toast(tl("সেভ হয়েছে ✅|Saved ✅")); done();
+      } catch (err) { btn.disabled = false; toast(err.message, true); }
+    }
+  });
+}
+
+async function docView(el, title, path, fields) {
+  const [c, d] = path.split("/");
+  const snap = await getDoc(doc(db, c, d)); const data = snap.exists() ? snap.data() : {};
+  el.innerHTML = `<div class="ph"><h2>${tl(title)}</h2></div><div class="card">${fields.map(f => fieldHTML(f, getPath(data, f[0]) ?? (f[2] === "bool" ? f[0].startsWith("menu.") : ""))).join("")}<button class="btn" data-save>${ic("save")} ${tl("সেভ করুন|Save")}</button></div>`;
+  bindUploads(el);
+  el.querySelector("[data-save]").onclick = async () => {
+    try { await setDoc(doc(db, c, d), readForm(el, fields), {merge: true}); toast(tl("সেভ হয়েছে ✅|Saved ✅")); }
+    catch (e) { toast(e.message, true); }
+  };
+}
+
+// ---------- tabs ----------
+async function homeView() {
+  const K = [["notify","notifications","bell","নোটিশ|Notices"],["posters","posters","image","পোস্টার|Posters"],["quiz","quiz","help","কুইজ|Quiz"],["duas","duas","book","দোয়া|Duas"],["articles","articles","book","ইসলাম গাইড|Guides"],["tasbih","tasbih","beads","তাসবিহ|Tasbih"],["azans","azans","bell","আজান|Azans"]];
+  view.innerHTML = `<div class="hero"><span class="logo">${ic("moon")}<img class="lgimg" src="logo.png" alt="" onerror="this.remove()"></span><div><small>SALAH TIME</small><h3>${tl("স্বাগতম, এডমিন!|Welcome back, Admin!")}</h3><p>${tl("এক জায়গা থেকে পুরো অ্যাপ নিয়ন্ত্রণ করুন।|Manage your whole app from one place.")}</p></div></div>
+   <div class="ph"><h2>${tl("ওভারভিউ|Overview")}</h2><small style="margin-left:auto">Live Firebase data</small></div><div class="stats" id="st">${SKEL}</div>`;
+  view.onclick = e => { const g = e.target.dataset.go; if (g) show(g); };
+  const [cn, app, ram] = await Promise.all([
+    Promise.all(K.map(k => getDocs(collection(db, k[1])).then(s => s.size).catch(() => "–"))),
+    getDoc(doc(db, "config", "app")), getDoc(doc(db, "config", "ramadan"))]);
+  const a = app.exists() ? app.data() : {}, r = ram.exists() ? ram.data() : {};
+  const card = (go, i, n, l, cls = "") => `<button class="stat ${cls}" data-go="${go}"><span class="si">${ic(i)}</span><b>${n}</b><small>${tl(l)}</small></button>`;
+  $("#st").innerHTML = K.map((k, n) => card(k[0], k[2], cn[n], k[3])).join("")
+    + card("ramadan", "moon", r.enabled ? "ON" : "OFF", "রমাদান|Ramadan", r.enabled ? "ok" : "")
+    + card("settings", a.maintenance ? "sliders" : "check", a.maintenance ? "ON" : "OK", "সিস্টেম স্ট্যাটাস|System status", a.maintenance ? "bad" : "ok");
+}
+
+async function notifyView() {
+  view.innerHTML = `<div class="ph"><h2>${tl("নোটিফিকেশন পাঠান|Send notification")}</h2></div><div class="card" id="nf">
+    ${fieldHTML(["title","শিরোনাম|Title","text"], "")}${fieldHTML(["body","বার্তা|Message","textarea"], "")}${fieldHTML(["imageUrl","ছবির লিংক (ঐচ্ছিক)|Image link (optional)","image"], "")}
+    <div class="pv-label">${ic("eye")} ${tl("নোটিফিকেশন প্রিভিউ|Notification preview")}</div><div id="npv"></div>
+    <button class="btn" id="send" style="width:100%">${ic("send")} ${tl("সবাইকে পাঠান|Send to everyone")}</button></div><div class="sec">${tl("পাঠানো নোটিফিকেশন|Sent notifications")}</div><div id="hist">${SKEL}</div>`;
+  bindUploads($("#nf")); bindNotifPreview($("#nf"), $("#npv"));
+  const loadHist = async () => {
+    const snap = await getDocs(collection(db, "notifications"));
+    const items = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => (b.sentAt?.seconds ?? 0) - (a.sentAt?.seconds ?? 0));
+    $("#hist").innerHTML = items.length ? items.map(i => `<div class="row">${i.imageUrl ? imgTag(i.imageUrl, "th") : `<span class="num">${ic("bell")}</span>`}<div class="grow"><b>${esc(i.title)}</b><small>${esc(i.body)}</small></div><button class="ib del" data-del="${i.id}">${ic("trash")}</button></div>`).join("") : `<div class="empty">${ic("bell")}<p>${tl("এখনো কিছু পাঠানো হয়নি|Nothing sent yet")}</p></div>`;
+  };
+  $("#hist").onclick = async e => {
+    const id = e.target.dataset.del;
+    if (id && await askConfirm(tl("এই নোটিফিকেশন মুছবেন?|Delete this notification?"), tl("মুছে ফেলুন|Delete"), true)) { await deleteDoc(doc(db, "notifications", id)); loadHist(); }
+  };
+  loadHist();
+  $("#send").onclick = async () => {
+    const f = readForm($("#nf"), [["title",0,"text"],["body",0,"text"],["imageUrl",0,"text"]]);
+    if (!f.title || !f.body) return toast(tl("শিরোনাম ও বার্তা দিন|Enter a title and message"), true);
+    const url = ls("workerUrl"); if (!url) return toast(tl("সেটিংসে Worker URL দিন|Add the Worker URL in Settings"), true);
+    if (!await askConfirm(tl("সব ইউজারের কাছে নোটিফিকেশন পাঠাবেন?|Send this to all users?"), tl("হ্যাঁ, পাঠান|Yes, send"))) return;
+    try {
+      $("#send").disabled = true;
+      const idToken = await auth.currentUser.getIdToken(true);
+      const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({idToken, ...f})});
+      const d = await r.json(); if (!r.ok) throw new Error(d.error || tl("ব্যর্থ|Failed"));
+      await addDoc(collection(db, "notifications"), {...f, sentAt: serverTimestamp()});
+      toast(tl("পাঠানো হয়েছে ✅|Sent ✅")); notifyView();
+    } catch (e) { toast(e.message, true); $("#send").disabled = false; }
+  };
+}
+
+function settingsView() {
+  view.innerHTML = `<div id="s1">${SKEL}</div><div class="sec">${tl("এই প্যানেলের নিজস্ব সেটিংস (শুধু এই ব্রাউজারে সেভ থাকে)|This panel's own settings (saved in this browser only)")}</div>
+    <div class="card" id="s2">${fieldHTML(["workerUrl","Cloudflare Worker URL","text"], ls("workerUrl"))}${fieldHTML(["imgbbKey","ImgBB API Key|ImgBB API Key","text"], ls("imgbbKey"))}<button class="btn" id="s2save">${ic("save")} ${tl("সেভ|Save")}</button></div>`;
+  docView($("#s1"), "অ্যাপ সেটিংস|App settings", "config/app", [
+    ["version","সর্বশেষ ভার্সন (যেমন 1.0.5) — এর চেয়ে পুরনো অ্যাপে আপডেট ডায়ালগ আসবে|Latest version (e.g. 1.0.5) — older apps get an update dialog","text"],["changelog","আপডেটে কী নতুন (ইউজার দেখবে)|What's new (users will see)","textarea"],["privacyUrl","প্রাইভেসি পলিসি লিংক|Privacy policy link","text"],["minVersion","ন্যূনতম ভার্সন (এর নিচে আপডেট বাধ্যতামূলক)|Minimum version (below it, update is forced)","text"],["updateUrl","আপডেট APK লিংক (ফাঁকা রাখলে অটো GitHub Release)|Update APK link (blank = auto GitHub Release)","text"],
+    ["maintenance","মেইনটেন্যান্স মোড|Maintenance mode","bool"],["maintenanceMsg","মেইনটেন্যান্স বার্তা|Maintenance message","text"],
+    ["menu.islam","ইসলাম A–Z (হোম কার্ড + মেনু)|Islam A–Z (home card + menu)","bool"],["menu.quran","ইসলাম A–Z: কুরআন|Islam A–Z: Quran","bool"],["menu.ibadat","ইসলাম A–Z: ইবাদত গাইড|Islam A–Z: Ibadat guide","bool"],
+    ["menu.qibla","৩ ডট মেনু: কিবলা|Menu: Qibla","bool"],["menu.calendar","মেনু: হিজরি ক্যালেন্ডার|Menu: Hijri calendar","bool"],["menu.zakat","মেনু: জাকাত ক্যালকুলেটর|Menu: Zakat calculator","bool"],
+    ["menu.settings","মেনু: সেটিংস|Menu: Settings","bool"],["menu.share","মেনু: শেয়ার|Menu: Share","bool"],["menu.rate","মেনু: রেট করুন|Menu: Rate us","bool"],
+    ["menu.privacy","মেনু: প্রাইভেসি পলিসি|Menu: Privacy policy","bool"],["menu.about","মেনু: আমাদের সম্পর্কে|Menu: About us","bool"],
+  ]);
+  $("#s2save").onclick = () => {
+    const o = readForm($("#s2"), [["workerUrl",0,"text"],["imgbbKey",0,"text"]]);
+    ls("workerUrl", o.workerUrl); ls("imgbbKey", o.imgbbKey); toast(tl("সেভ হয়েছে ✅|Saved ✅"));
+  };
+}
+
+async function ramadanView() {
+  view.innerHTML = `<div id="r1">${SKEL}</div><div id="r2" style="margin-top:28px"></div>`;
+  docView($("#r1"), "রমাদান কনফিগ|Ramadan config", "config/ramadan", [
+    ["enabled","রমাদান সেকশন চালু|Ramadan section on","bool"],["startDate","রমাদান শুরুর তারিখ|Ramadan start date","date"],["totalDays","মোট দিন (২৯/৩০)|Total days (29/30)","number"],
+    ["sehriOffset","সেহরির সময় অ্যাডজাস্ট (মিনিট, যেমন -২ বা ১)|Sehri time offset (minutes, e.g. -2 or 1)","number"],["iftarOffset","ইফতারের সময় অ্যাডজাস্ট (মিনিট)|Iftar time offset (minutes)","number"],
+  ]);
+  colView("ramadan_days", $("#r2"));
+}
+
+async function show(tab) {
+  ls("tab", tab); buildNav();
+  view.onclick = null; view.oninput = null;
+  view.innerHTML = SKEL;
+  view.classList.remove("in"); void view.offsetWidth; view.classList.add("in");
+  window.scrollTo({top: 0});
+  try {
+    if (tab === "home") await homeView();
+    else if (tab === "notify") await notifyView();
+    else if (tab === "settings") settingsView();
+    else if (tab === "ramadan") await ramadanView();
+    else await colView(tab, view);
+  } catch (e) { view.innerHTML = `<div class="empty" style="color:var(--red)">Error: ${esc(e.message)}</div>`; }
+}
+</script>
+</body>
+</html>
