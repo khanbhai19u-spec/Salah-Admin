@@ -52,6 +52,8 @@ jobs:
             A=$(printf "%s" "$KEY_ALIAS_RAW" | tr -d ' \r\n')
             K=$(printf "%s" "$KEY_PASSWORD_RAW" | tr -d ' \r\n')
             S=$(printf "%s" "$STORE_PASSWORD_RAW" | tr -d ' \r\n')
+            # KEY_PASSWORD secret is optional: PKCS12 keystores use the store password for the key
+            if [ -z "$K" ]; then K="$S"; fi
             if ! keytool -list -keystore app/android/app/upload-keystore.jks -storepass "$S" -alias "$A" > /dev/null 2>&1; then
               echo "ERROR: KEY_ALIAS বা STORE_PASSWORD Secret ভুল। Settings > Secrets এ আবার দাও।"
               exit 1
@@ -72,6 +74,10 @@ jobs:
           dart run flutter_launcher_icons || echo "icon step skipped"
           flutter build apk --release --build-name=1.0.${{ github.run_number }} --build-number=${{ github.run_number }} --dart-define=BUILD_NUMBER=${{ github.run_number }}
           cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/salah-admin.apk
+          # never publish a debug-signed APK: it cannot install over the real admin app
+          if keytool -printcert -jarfile build/app/outputs/flutter-apk/salah-admin.apk | grep -q "CN=Android Debug"; then
+            echo "ERROR: APK is signed with the debug key"; exit 1
+          fi
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
