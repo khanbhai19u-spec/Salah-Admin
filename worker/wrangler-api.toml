@@ -1,0 +1,16 @@
+# Cloudflare Worker for the public Salah Time API (api-worker.js).
+# No secrets are needed. Keys are stored as SHA-256 hashes in the D1 database.
+name = "salah-api"
+main = "api-worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+PROJECT_ID = "salah-time-fe99b"
+ADMIN_UID = "MztAYiBJTFSATatZKbbrOAtwncy1"
+
+# Create the database once:  npx wrangler d1 create salah-api
+# then put the id it prints here (or bind it in the dashboard: Settings → Bindings → D1, name DB).
+[[d1_databases]]
+binding = "DB"
+database_name = "salah-api"
+database_id = "PUT-THE-D1-ID-HERE"
