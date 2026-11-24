@@ -8,9 +8,9 @@
 // Answer: {ok: true, id} or {error: "<what went wrong, in plain words>"}
 //
 // Secret (Cloudflare → Worker → Settings → Variables and Secrets, type Secret):
-//   FIREBASE_SA   the Firebase service account JSON (Project settings → Service accounts → Generate new private key)
-// Plain variables:
-//   PROJECT_ID = salah-time-fe99b      ADMIN_UID = <admin uid>
+//   FIREBASE_SERVICE_ACCOUNT (or FIREBASE_SA)   the Firebase service account JSON
+//   (the old worker's secret works as it is, nothing new to add)
+// Optional plain variables: PROJECT_ID (default salah-time-fe99b), ADMIN_UID (default: the admin)
 
 export default {
   async fetch(req, env) {
@@ -22,7 +22,7 @@ export default {
     try { b = await req.json(); } catch { return json({ error: "bad json" }, 400); }
     try { await verifyAdmin(b.idToken, env); } catch (e) { return json({ error: "Admin login check failed: " + e.message }, 401); }
     let sa;
-    try { sa = JSON.parse(env.FIREBASE_SA || ""); } catch { return json({ error: "FIREBASE_SA secret is missing or is not valid JSON" }, 500); }
+    try { sa = JSON.parse(env.FIREBASE_SA || env.FIREBASE_SERVICE_ACCOUNT || ""); } catch { return json({ error: "The service account secret (FIREBASE_SERVICE_ACCOUNT or FIREBASE_SA) is missing or is not valid JSON" }, 500); }
     if (!sa.client_email || !sa.private_key) return json({ error: "FIREBASE_SA has no client_email / private_key" }, 500);
     const pid = sa.project_id || env.PROJECT_ID || "salah-time-fe99b";
     let token;
@@ -96,7 +96,7 @@ async function verifyAdmin(token, env) {
   const now = Math.floor(Date.now() / 1000);
   if (pay.aud !== pid || pay.iss !== "https://securetoken.google.com/" + pid) throw new Error("wrong project");
   if (pay.exp < now || pay.iat > now + 300) throw new Error("expired, log in again");
-  if (!env.ADMIN_UID || pay.sub !== env.ADMIN_UID) throw new Error("not the admin (check ADMIN_UID in the worker)");
+  if (pay.sub !== (env.ADMIN_UID || "MztAYiBJTFSATatZKbbrOAtwncy1")) throw new Error("not the admin (check ADMIN_UID in the worker)");
   if (!jwks || Date.now() - jwksAt > 3600e3) {
     const r = await fetch("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com");
     jwks = (await r.json()).keys; jwksAt = Date.now();
